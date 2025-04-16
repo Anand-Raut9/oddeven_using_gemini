@@ -1,30 +1,26 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from google import genai
+import google.generativeai as genai
 
 app = FastAPI()
 
-client = genai.Client(api_key="AIzaSyCb7e8VNQCL9XlteIqABbQX_oSfeWAfgMI")
-
+# Configure the Gemini API
+genai.configure(api_key="AIzaSyCb7e8VNQCL9XlteIqABbQX_oSfeWAfgMI")
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 class InputNumber(BaseModel):
     number: str
 
 @app.get("/")
-def dumb():
+def root():
     return {"message": "Running"}
 
 @app.post("/isodd")
 def is_odd(data: InputNumber):
-
-    response = client.models.generate_content(
-    model="gemini-2.0-flash", contents= f"Is {data.number} odd? In one word",
-    )
+    response = model.generate_content(f"Is {data.number} odd? In one word")
     return {"result": response.text}
 
 @app.post("/iseven")
 def is_even(data: InputNumber):
-    response = client.models.generate_content(
-    model="gemini-2.0-flash", contents= f"Is {data.number} even? In one word",
-    )
+    response = model.generate_content(f"Is {data.number} even? In one word")
     return {"result": response.text}
